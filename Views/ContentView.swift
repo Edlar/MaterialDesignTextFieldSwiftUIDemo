@@ -23,13 +23,13 @@ struct ContentView_Previews: PreviewProvider {
 }
 
 struct Home: View {
-    @State var text = ""
     @State var isTapped = false
+    @StateObject var manager = TFManager()
     var body: some View {
         VStack {
             VStack {
                 HStack(spacing: 15) {
-                    TextField("", text: $text) { status in
+                    TextField("", text: $manager.text) { status in
                         // It will fire when text field is clicked
                         if status {
                             withAnimation(.easeIn) {
@@ -39,7 +39,7 @@ struct Home: View {
                         }
                     } onCommit: {
                         // It will fire when return button is pressed
-                        if text == "" {
+                        if manager.text == "" {
                             withAnimation(.easeOut) {
                                 // Moving hint to down
                                 isTapped = false
@@ -48,7 +48,7 @@ struct Home: View {
                     }
                     Button(action: {print("Test")}) {
                         Image(systemName: "suit.heart")
-                            .foregroundColor(isTapped ? .accentColor : .gray)
+                            .foregroundColor(.gray)
                     }
                 }
                 .padding(.top, isTapped ? 15 : 0)
@@ -60,7 +60,6 @@ struct Home: View {
                     , alignment: .leading
                 )
                 .padding(.horizontal, 10)
-                // Divider color
                 Rectangle()
                     .fill(isTapped ? Color.accentColor : Color.gray)
                     .opacity(isTapped ? 1 : 0.5)
@@ -70,7 +69,25 @@ struct Home: View {
             .padding(.top, 12)
             .background(Color.gray.opacity(0.09))
             .cornerRadius(5)
+            HStack {
+                Spacer()
+                Text("\(manager.text.count)/15")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                    .padding(.trailing)
+                    .padding(.top, 4)
+            }
         }
         .padding()
+    }
+}
+
+class TFManager: ObservableObject {
+    @Published var text = "" {
+        didSet {
+            if text.count > 15 && oldValue.count <= 15 {
+                text = oldValue
+            }
+        }
     }
 }
